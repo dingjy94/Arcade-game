@@ -23,7 +23,6 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
@@ -39,8 +38,7 @@ var Engine = (function(global) {
          * computer is) - hurray time!
          */
         var now = Date.now(),
-        dt = (now - lastTime) / 1000.0;
-        // console.log(dt);
+            dt = (now - lastTime) / 1000.0;
 
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
@@ -93,8 +91,11 @@ var Engine = (function(global) {
     function updateEntities(dt) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
+            if (enemy.handleCollision(player)) {
+                player.reset();
+            }
         });
-        player.update();
+        // player.update();
     }
 
     /* This function initially draws the "game level", it will then call

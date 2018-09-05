@@ -1,92 +1,116 @@
-
-// Enemies our player must avoid
-var Enemy = function(y, speed) {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
-    this.x = 0;
-    this.y = y * 83;
-    this.speed = speed;
-    
-};
-
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
-Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-    // console.log(dt);
-    this.x += dt * this.speed;
-    if (this.x >= 505) {
+'use strict';
+/**
+* @description An Enemy
+* @constructor
+* @param {number} speed - The speed of Enemy
+* @param {number} y - The start y of Enemy
+*/
+class Enemy {
+    constructor(speed, y) {
         this.x = 0;
+        this.y = (y - 1) * 83 + 60;
+        this.speed = speed;
+        this.sprite = 'images/enemy-bug.png';
     }
-};
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    // console.log(this.x, this.y);
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
+    /**
+    * @description Update enemy position
+    * @param {number} dt - time delta between ticks
+    */
+    update(dt) {
+        this.x += 101 * dt * this.speed;
+        if (this.x > 505) {
+            this.x = 0;
+        }
+    }
+
+    /**
+    * @description Draw enemy
+    */
+    render() {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    }
+
+    handleCollision(player) {
+    if (player.y === this.y) {
+        if (this.x + 50 > player.x && this.x - 50 < player.x) {
+            return true;
+        }
+    }
+    return false;
+}
+}
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
-var Player = function() {
-    this.sprite = 'images/char-boy.png';
-    this.x = 2;
-    this.y = 5;
-}
-
-Player.prototype.update = function() {
-    if (this.y === 0) {
-        this.y = 5;
-        this.x = 2;
+class Player {
+    constructor(playerId) {
+        const playerImage = ['images/char-boy.png', 'images/char-cat-girl.png', 
+        'images/char-horn-girl.png', 'images/char-pink-girl.png'];
+        this.sprite = playerImage[playerId];
+        this.x = 101 * 2;
+        this.y = 4 * 83 + 60;
     }
-}
 
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83);
-}
+    // update() {
+    //     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    // }
+    /**
+    * @description Player enemy
+    */
+    render() {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    }
 
-Player.prototype.handleInput = function(key) {
-    switch(key) {
-        case 'left':
+    handleInput(move) {
+        if (move === 'left') {
             if (this.x != 0) {
-                this.x--;
-            } 
-            break;
-        case 'right':
-            if (this.x != 4) {
-                this.x++;
+                this.x -= 101;
             }
-            break;
-        case 'up':
-            if (this.y != 0) {
-                this.y--;
+        } else if (move === 'up') {
+            if (this.y != 60) {
+                this. y -= 83;
+            } else {
+                this.win();
             }
-            break;
-        case 'down':
-            if (this.y != 5) {
-                this.y++;
+        } else if (move === 'right') {
+            if (this.x != 404) {
+                this.x += 101;
             }
-            break;
+        } else if (move === 'down') {
+                if (this.y != 4 * 83 + 60) {
+                this. y += 83;
+            }
+        }      
     }
+
+    reset() {
+        this.x = 101 * 2;
+        this.y = 4 * 83 + 60;
+    }
+    
+    win() {
+        this.reset();
+        gameFinish();
+    }
+}
+
+function gameFinish() {
+    document.getElementsByClassName('pop-up-button').item(0).addEventListener('click', backtoGame);
+    endPop.style.display = "block";
+}
+
+function backtoGame() {
+    endPop.style.display = "none";
 }
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-
-player = new Player();
-enemy1 = new Enemy(1, 100);
-enemy2 = new Enemy(2, 200);
-enemy3 = new Enemy(3, 150);
-allEnemies = [enemy1, enemy2, enemy3];
-
+const allEnemies = [new Enemy(1, 1), new Enemy(2, 2), new Enemy(3, 3)];
+const player = new Player(0);
+const endPop = document.getElementsByClassName('pop-up').item(0);
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function(e) {
